@@ -51,6 +51,8 @@ class GFunction: NSObject {
         case .password:
             textFiled.keyboardType = .default
             textFiled.isSecureTextEntry = true
+        case .phone:
+            textFiled.keyboardType = .phonePad
         default:
             textFiled.keyboardType = .default
         }

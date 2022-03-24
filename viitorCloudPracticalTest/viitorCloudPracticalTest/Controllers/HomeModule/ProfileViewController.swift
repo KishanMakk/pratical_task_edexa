@@ -35,7 +35,7 @@ class ProfileViewController: UIViewController {
     // MARK: Action method
     
     @IBAction func btnUpdateProfileTapped(sender: UIButton){
-        GFunction.shared.showAlert(title: nibName, message: "Profile updated successfully", controller: self)
+        updateProfile()
     }
 }
 
@@ -83,14 +83,7 @@ extension ProfileViewController{
         
         rootStack.addArrangedSubview(genderTextFiled)
         
-        let updateButton = UIButton()
-        updateButton.translatesAutoresizingMaskIntoConstraints = false
-        updateButton.setTitle("Register", for: .normal)
-        updateButton.titleLabel?.font = .boldSystemFont(ofSize: UIFont.buttonFontSize)
-        updateButton.layer.cornerRadius = 10
-        updateButton.contentEdgeInsets = .init(top: 10, left: 0, bottom: 10, right: 0)
-        updateButton.backgroundColor = .systemBlue
-        updateButton.addTarget(self, action: #selector(btnUpdateProfileTapped(sender:)), for: .touchUpInside)
+        let updateButton = createUpdateButton()
         scrollView.addSubview(updateButton)
         
         let margin = view.safeAreaLayoutGuide
@@ -116,6 +109,18 @@ extension ProfileViewController{
         
         getUserProfile()
     }
+    
+    private func createUpdateButton() -> UIButton{
+        let updateButton = UIButton()
+        updateButton.translatesAutoresizingMaskIntoConstraints = false
+        updateButton.setTitle("Update", for: .normal)
+        updateButton.titleLabel?.font = .boldSystemFont(ofSize: UIFont.buttonFontSize)
+        updateButton.layer.cornerRadius = 10
+        updateButton.contentEdgeInsets = .init(top: 10, left: 0, bottom: 10, right: 0)
+        updateButton.backgroundColor = .systemBlue
+        updateButton.addTarget(self, action: #selector(btnUpdateProfileTapped(sender:)), for: .touchUpInside)
+        return updateButton
+    }
 }
 
 extension ProfileViewController{
@@ -126,18 +131,56 @@ extension ProfileViewController{
         let managedContext = appDelegate.persistentContainer.viewContext
         
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "Users")
-        fetchRequest.predicate = NSPredicate(format: "email = %@", UserDefaults.standard.value(forKey: "email") as! String)
+        fetchRequest.predicate = NSPredicate(format: "email = %@", UserDefaults.standard.value(forKey: "loginEmail") as! String)
         
         do {
             let result = try managedContext.fetch(fetchRequest)
             for data in result as! [NSManagedObject] {
-                
-                nameTextFiled.text = data.value(forKey: "fullname") as! String
-                emailTextFiled.text = data.value(forKey: "fullname") as! String
-                phoneTextFiled.text = data.value(forKey: "fullname") as! String
-                cityTextFiled.text = data.value(forKey: "fullname") as! String
-                genderTextFiled.text = data.value(forKey: "fullname") as! String
+                nameTextFiled.text = (data.value(forKey: "fullname") as! String)
+                emailTextFiled.text = (data.value(forKey: "email") as! String)
+                phoneTextFiled.text = (data.value(forKey: "phone") as! String)
+                cityTextFiled.text = (data.value(forKey: "city") as! String)
+                genderTextFiled.text = (data.value(forKey: "gender") as! String)
             }
+        } catch {
+            print("Failed")
+        }
+    }
+}
+
+extension ProfileViewController{
+    
+    func updateProfile() {
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return }
+        
+        let managedContext = appDelegate.persistentContainer.viewContext
+        
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "Users")
+        fetchRequest.predicate = NSPredicate(format: "email = %@", emailTextFiled.text!)
+        
+        do {
+            let result = try managedContext.fetch(fetchRequest)
+            
+            if result.count != 0{
+                for data in result as! [NSManagedObject] {
+                    data.setValue(nameTextFiled.text!, forKeyPath: "fullname")
+                    data.setValue(emailTextFiled.text!, forKey: "email")
+                    data.setValue(cityTextFiled.text!, forKey: "city")
+                    data.setValue(phoneTextFiled.text!, forKey: "phone")
+                    data.setValue(genderTextFiled.text!, forKey: "gender")
+                    
+                    do{
+                        try managedContext.save()
+                        
+                        GFunction.shared.showAlert(title: nibName, message: "Profile updated successfully", controller: self)
+                    }catch{
+                        
+                    }
+                }
+            }else{
+                GFunction.shared.showAlert(title: nil, message: "No Account registerd", controller: self)
+            }
+            
         } catch {
             print("Failed")
         }

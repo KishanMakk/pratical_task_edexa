@@ -55,6 +55,8 @@ extension FeedViewController{
         view.addSubview(searchBar)
         
         tableView = createTableView()
+        tableView.allowsMultipleSelectionDuringEditing = true
+        
         view.addSubview(tableView)
         
         addLongGestureOnTableView()
@@ -81,6 +83,8 @@ extension FeedViewController{
         tableView.delegate = self
         tableView.dataSource = self
         tableView.keyboardDismissMode = .onDrag
+        tableView.allowsMultipleSelection = true
+        tableView.allowsSelectionDuringEditing = true
         tableView.tableFooterView = UIView()
         return tableView
     }
@@ -96,7 +100,7 @@ extension FeedViewController{
     
     fileprivate func addLongGestureOnTableView() {
         let longTap = UILongPressGestureRecognizer(target: self, action: #selector(longPressDetect))
-        longTap.minimumPressDuration = 2
+        longTap.minimumPressDuration = 0.5
         tableView.addGestureRecognizer(longTap)
     }
     
@@ -124,6 +128,10 @@ extension FeedViewController{
 
 extension FeedViewController: UITableViewDelegate, UITableViewDataSource{
     
+    func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCell.EditingStyle {
+        return .none
+    }
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return searchBar.text == "" ? arrSelectedCityData.count : arrFilteredCityData.count
     }
@@ -136,6 +144,12 @@ extension FeedViewController: UITableViewDelegate, UITableViewDataSource{
         cell.textLabel?.text = (employee.firstName)! + " " + (employee.lastName)!
         cell.detailTextLabel?.text = employee.city
         return cell
+    }
+    
+    func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
+        if tableView.indexPathsForSelectedRows == nil {
+            tableView.setEditing(false, animated: true)
+        }
     }
 }
 

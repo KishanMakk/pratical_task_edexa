@@ -31,10 +31,23 @@ class LoginViewController: UIViewController {
     
     //-------------------------------
     
+    private func validateFields() -> Bool{
+        if emailTextFiled.text!.isEmpty{
+            GFunction.shared.showAlert(title: nil, message: "Please enter email or phone", controller: self)
+            return false
+        }else if passwordTextFiled.text!.isEmpty{
+            GFunction.shared.showAlert(title: nil, message: "Please enter password", controller: self)
+            return false
+        }
+        return true
+    }
+    
     //MARK: - Action methods
     
     @IBAction func btnLoginTapped(sender: UIButton){
-        checkUserLogin()
+        if validateFields(){
+            checkUserLogin()
+        }
     }
     
     @IBAction func btnRegisterLinkTapped(sender: UIButton){
@@ -44,24 +57,6 @@ class LoginViewController: UIViewController {
 }
 
 extension LoginViewController{
-    
-    fileprivate func loginButtonView(_ loginButton: UIButton) {
-        loginButton.translatesAutoresizingMaskIntoConstraints = false
-        loginButton.setTitle("Login", for: .normal)
-        loginButton.titleLabel?.font = .boldSystemFont(ofSize: UIFont.buttonFontSize)
-        loginButton.layer.cornerRadius = 10
-        loginButton.contentEdgeInsets = .init(top: 10, left: 0, bottom: 10, right: 0)
-        loginButton.addTarget(self, action: #selector(btnLoginTapped(sender:)), for: .touchUpInside)
-        loginButton.backgroundColor = .systemBlue
-    }
-    
-    fileprivate func registerButtonView(_ registerLink: UIButton) {
-        registerLink.translatesAutoresizingMaskIntoConstraints = false
-        registerLink.setTitle("Not Register yet? Register Here", for: .normal)
-        registerLink.titleLabel?.font = .preferredFont(forTextStyle: .footnote)
-        registerLink.setTitleColor(.secondaryLabel, for: .normal)
-        registerLink.addTarget(self, action: #selector(btnRegisterLinkTapped(sender:)), for: .touchUpInside)
-    }
     
     private func setupUI(){
         view.backgroundColor = .white
@@ -73,14 +68,10 @@ extension LoginViewController{
         passwordTextFiled = GFunction.shared.createTextfiled(type: .password, placeHodler: "enter password")
         view.addSubview(passwordTextFiled)
         
-        let loginButton = UIButton()
-        loginButtonView(loginButton)
-        
+        let loginButton = createLoginButton()
         view.addSubview(loginButton)
         
-        let registerLink = UIButton()
-        registerButtonView(registerLink)
-        
+        let registerLink = createRegisterButtonLink()
         view.addSubview(registerLink)
         
         let margin = view.safeAreaLayoutGuide
@@ -104,6 +95,28 @@ extension LoginViewController{
             registerLink.centerXAnchor.constraint(equalTo: view.centerXAnchor)
         ])
     }
+    
+    fileprivate func createLoginButton() -> UIButton{
+        let loginButton = UIButton()
+        loginButton.translatesAutoresizingMaskIntoConstraints = false
+        loginButton.setTitle("Login", for: .normal)
+        loginButton.titleLabel?.font = .boldSystemFont(ofSize: UIFont.buttonFontSize)
+        loginButton.layer.cornerRadius = 10
+        loginButton.contentEdgeInsets = .init(top: 10, left: 0, bottom: 10, right: 0)
+        loginButton.addTarget(self, action: #selector(btnLoginTapped(sender:)), for: .touchUpInside)
+        loginButton.backgroundColor = .systemBlue
+        return loginButton
+    }
+    
+    fileprivate func createRegisterButtonLink() -> UIButton{
+        let registerLink = UIButton()
+        registerLink.translatesAutoresizingMaskIntoConstraints = false
+        registerLink.setTitle("Not Register yet? Register Here", for: .normal)
+        registerLink.titleLabel?.font = .preferredFont(forTextStyle: .footnote)
+        registerLink.setTitleColor(.secondaryLabel, for: .normal)
+        registerLink.addTarget(self, action: #selector(btnRegisterLinkTapped(sender:)), for: .touchUpInside)
+        return registerLink
+    }
 }
 
 extension LoginViewController{
@@ -122,10 +135,11 @@ extension LoginViewController{
             if result.count != 0{
                 for data in result as! [NSManagedObject] {
                     let email = data.value(forKey: "email") as! String
+                    
                     let password = data.value(forKey: "password") as! String
                     
                     if password == passwordTextFiled.text!{
-                        UserDefaults.standard.set(data.value(forKey: "email") as! String, forKey: "loginEmail")
+                        UserDefaults.standard.set(email, forKey: "loginEmail")
                         GFunction.shared.setRootViewController()
                     }else{
                         GFunction.shared.showAlert(title: nil, message: "Incorrect password", controller: self)

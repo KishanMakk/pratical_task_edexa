@@ -35,10 +35,36 @@ class RegisterViewController: UIViewController {
     
     //-------------------------------
 
+    private func validateFileds() -> Bool{
+        if nameTextFiled.text!.isEmpty{
+            GFunction.shared.showAlert(title: nil, message: "Please enter name", controller: self)
+            return false
+        }else if emailTextFiled.text!.isEmpty{
+            GFunction.shared.showAlert(title: nil, message: "Please enter email", controller: self)
+            return false
+        }else if phoneTextFiled.text!.isEmpty{
+            GFunction.shared.showAlert(title: nil, message: "Please enter phone", controller: self)
+            return false
+        }else if cityTextFiled.text!.isEmpty{
+            GFunction.shared.showAlert(title: nil, message: "Please enter city", controller: self)
+            return false
+        }else if genderTextFiled.text!.isEmpty{
+            GFunction.shared.showAlert(title: nil, message: "Please enter gender", controller: self)
+            return false
+        }else if passwordTextFiled.text!.isEmpty{
+            GFunction.shared.showAlert(title: nil, message: "Please enter password", controller: self)
+            return false
+        }
+    
+        return true
+    }
+    
     //MARK: - Action methods
     
     @IBAction func btnRegisterTapped(sender: UIButton){
-        createData()
+        if validateFileds(){
+            createData()
+        }
     }
     
     func createData(){
@@ -52,9 +78,9 @@ class RegisterViewController: UIViewController {
         user.setValue(nameTextFiled.text!, forKeyPath: "fullname")
         user.setValue(emailTextFiled.text!, forKey: "email")
         user.setValue(passwordTextFiled.text!, forKey: "password")
-        user.setValue(passwordTextFiled.text!, forKey: "city")
-        user.setValue(passwordTextFiled.text!, forKey: "phone")
-        user.setValue(passwordTextFiled.text!, forKey: "gender")
+        user.setValue(cityTextFiled.text!, forKey: "city")
+        user.setValue(phoneTextFiled.text!, forKey: "phone")
+        user.setValue(genderTextFiled.text!, forKey: "gender")
         
         do {
             try managedContext.save()
@@ -99,10 +125,10 @@ extension RegisterViewController{
         phoneTextFiled = GFunction.shared.createTextfiled(type: .phone, placeHodler: "enter phone number")
         rootStack.addArrangedSubview(phoneTextFiled)
         
-        cityTextFiled = GFunction.shared.createTextfiled(type: .phone, placeHodler: "enter city")
+        cityTextFiled = GFunction.shared.createTextfiled(type: .name, placeHodler: "enter city")
         rootStack.addArrangedSubview(cityTextFiled)
         
-        genderTextFiled = GFunction.shared.createTextfiled(type: .phone, placeHodler: "select gender")
+        genderTextFiled = GFunction.shared.createTextfiled(type: .name, placeHodler: "select gender")
         
         let imgView = UIImageView(image: UIImage(systemName: "chevron.down"))
         imgView.contentMode = .left
@@ -111,7 +137,7 @@ extension RegisterViewController{
         
         rootStack.addArrangedSubview(genderTextFiled)
         
-        passwordTextFiled = GFunction.shared.createTextfiled(type: .phone, placeHodler: "enter password")
+        passwordTextFiled = GFunction.shared.createTextfiled(type: .password, placeHodler: "enter password")
         rootStack.addArrangedSubview(passwordTextFiled)
         
         let registerButton = UIButton()
